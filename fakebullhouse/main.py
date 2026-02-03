@@ -175,7 +175,6 @@ def checkout():
 def finalizar_pedido():
     nome = request.form["nome"]
     endereco = request.form["endereco"]
-    pagamento = request.form["pagamento"]
     carrinho = session["carrinho"]
 
     total = sum(
@@ -186,11 +185,17 @@ def finalizar_pedido():
     conn = conectar()
     cursor = conn.cursor()
 
-    # salva pedido
+    # cria pedido
     cursor.execute("""
         INSERT INTO pedidos (cliente, endereco, pagamento, total, status)
         VALUES (?, ?, ?, ?, ?)
-    """, (nome, endereco, pagamento, total, "Aguardando pagamento"))
+    """, (
+        nome,
+        endereco,
+        "Mercado Pago",
+        total,
+        "Aguardando pagamento"
+    ))
 
     pedido_id = cursor.lastrowid
 
@@ -209,10 +214,12 @@ def finalizar_pedido():
     conn.commit()
     conn.close()
 
-    session["carrinho"] = []
+    # salva pedido_id na sessão
+    session["pedido_id"] = pedido_id
     session.modified = True
 
-    return redirect(f"/pedido/{pedido_id}")
+    return redirect("/pagar")
+
 
 
 @app.route("/pedido/<int:pid>")
@@ -335,32 +342,70 @@ import os
 
 sdk = mercadopago.SDK(os.getenv("MP_ACCESS_TOKEN"))
 
-@app.route("/pagar")
-def pagar():
-    carrinho = session["carrinho"]
+@app.route("/pagar/<int:pedido_id>")
+def pagar(pedido_id):
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT nome, quantidade FROM itens WHERE pedido_id = ?",
+        (pedido_id,)
+    )
+    itens_db = cursor.fetchall()
+
+    conn.close()
 
     itens = []
-    for item in carrinho:
+    for nome, quantidade in itens_db:
         itens.append({
-            "title": item["nome"],
-            "quantity": item["quantidade"],
+            "title": nome,
+            "quantity": quantidade,
             "currency_id": "BRL",
-            "unit_price": float(PRECOS[item["id"]])
+            "unit_price": 1  # depois você pode detalhar
         })
 
     preference_data = {
         "items": itens,
-        "back_urls": {
-            "success": "https://SEU-SITE.onrender.com/sucesso",
-            "failure": "https://SEU-SITE.onrender.com/erro",
-            "pending": "https://SEU-SITE.onrender.com/pendente"
-        },
+        "external_reference": str(pedido_id),
+        "notification_url": "https://SEU-SITE.onrender.com/webhook",
         "auto_return": "approved"
     }
 
     preference = sdk.preference().create(preference_data)
-
     return redirect(preference["response"]["init_point"])
+
+
+
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    data = request.get_json()
+
+    if data and data.get("type") == "payment":
+        payment_id = data["data"]["id"]
+        payment = sdk.payment().get(payment_id)
+
+        if payment["response"]["status"] == "approved":
+            pedido_id = payment["response"]["external_reference"]
+
+            conn = conectar()
+            cursor = conn.cursor()
+
+            cursor.execute(
+                "UPDATE pedidos SET status = ? WHERE id = ?",
+                ("Pago", pedido_id)
+            )
+
+            conn.commit()
+            conn.close()
+
+    return "ok"
+
+
+@app.route("/aguardando")
+def aguardando():
+    return "Pagamento confirmado! Seu pedido está sendo preparado."
+
+
 
 
 if __name__ == "__main__":

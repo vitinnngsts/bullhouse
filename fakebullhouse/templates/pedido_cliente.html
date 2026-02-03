@@ -19,8 +19,17 @@
 </ul>
 
 <p><strong>Pagamento:</strong> {{ pedido.pagamento }}</p>
-<p><strong>Pagamento:</strong> {{ pedido.endereco }}</p>
+<p><strong>Endereço:</strong> {{ pedido.endereco }}</p>
+
+
 <p>Status: <strong id="status-pedido">{{ pedido.status }}</strong></p>
+
+{% if pedido.status == "Aguardando pagamento" %}
+    <a href="/pagar/{{ pedido.id }}">
+        <button>💳 Pagar agora</button>
+    </a>
+{% endif %}
+
 <script>
 const pedidoId = "{{ pedido.id }}";
 
@@ -32,7 +41,6 @@ function atualizarStatus() {
         });
 }
 
-// chama a cada 3 segundos
 setInterval(atualizarStatus, 3000);
 </script>
 
