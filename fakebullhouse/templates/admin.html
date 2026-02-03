@@ -19,7 +19,8 @@
 <p> <strong>Pagamento:</strong> {{ pedido.pagamento }}</p>
 <p><strong>Status:</strong> {{ pedido.status }}</p>
 <form action="/alterar_status" method="post">
-    <input type="hidden" name="index" value="{{ loop.index0 }}">
+    <input type="hidden" name="id" value="{{ pedido.id }}">
+
 
     <select name="status">
         <option value="Novo">Novo</option>

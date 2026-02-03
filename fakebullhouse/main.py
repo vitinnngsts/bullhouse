@@ -1,6 +1,12 @@
 from flask import Flask, render_template, session, request, jsonify, redirect
+from database import criar_tabelas
+from database import conectar
+
+
 
 app = Flask(__name__)
+criar_tabelas()
+
 app.secret_key = "bullhouse-secret"
 
 # ================= PRODUTOS =================
@@ -167,21 +173,47 @@ def checkout():
 
 @app.route("/finalizar_pedido", methods=["POST"])
 def finalizar_pedido():
-    pedido = {
-        "id": len(PEDIDOS) + 1,
-        "cliente": request.form["nome"],
-        "endereco": request.form["endereco"],
-        "pagamento": request.form["pagamento"],
-        "itens": session["carrinho"],
-        "total": round(sum(PRECOS[i["id"]] * i["quantidade"] for i in session["carrinho"]), 2),
-        "status": "Novo"
-    }
+    nome = request.form["nome"]
+    endereco = request.form["endereco"]
+    pagamento = request.form["pagamento"]
+    carrinho = session["carrinho"]
 
-    PEDIDOS.append(pedido)
+    total = sum(
+        PRECOS[i["id"]] * i["quantidade"]
+        for i in carrinho
+    )
+
+    conn = conectar()
+    cursor = conn.cursor()
+
+    # salva pedido
+    cursor.execute("""
+        INSERT INTO pedidos (cliente, endereco, pagamento, total, status)
+        VALUES (?, ?, ?, ?, ?)
+    """, (nome, endereco, pagamento, total, "Aguardando pagamento"))
+
+    pedido_id = cursor.lastrowid
+
+    # salva itens
+    for item in carrinho:
+        cursor.execute("""
+            INSERT INTO itens (pedido_id, nome, quantidade, observacoes)
+            VALUES (?, ?, ?, ?)
+        """, (
+            pedido_id,
+            item["nome"],
+            item["quantidade"],
+            item.get("observacoes", "")
+        ))
+
+    conn.commit()
+    conn.close()
+
     session["carrinho"] = []
     session.modified = True
 
-    return render_template("pedido_sucesso.html", pedido=pedido)
+    return redirect(f"/pedido/{pedido_id}")
+
 
 @app.route("/pedido/<int:pid>")
 def pedido_cliente(pid):
@@ -199,13 +231,52 @@ def api_status(pid):
 
 @app.route("/admin")
 def admin():
-    return render_template("admin.html", pedidos=PEDIDOS)
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM pedidos ORDER BY id DESC")
+    pedidos_raw = cursor.fetchall()
+
+    pedidos = []
+    for p in pedidos_raw:
+        cursor.execute(
+            "SELECT nome, quantidade FROM itens WHERE pedido_id = ?",
+            (p[0],)
+        )
+        itens = cursor.fetchall()
+
+        pedidos.append({
+            "id": p[0],
+            "cliente": p[1],
+            "endereco": p[2],
+            "pagamento": p[3],
+            "total": p[4],
+            "status": p[5],
+            "itens": itens
+        })
+
+    conn.close()
+    return render_template("admin.html", pedidos=pedidos)
+
 
 @app.route("/alterar_status", methods=["POST"])
 def alterar_status():
-    idx = int(request.form["index"])
-    PEDIDOS[idx]["status"] = request.form["status"]
+    pedido_id = request.form["id"]
+    status = request.form["status"]
+
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "UPDATE pedidos SET status = ? WHERE id = ?",
+        (status, pedido_id)
+    )
+
+    conn.commit()
+    conn.close()
+
     return redirect("/admin")
+
 
 @app.route("/remover_carrinho", methods=["POST"])
 def remover_carrinho():
@@ -218,6 +289,10 @@ def remover_carrinho():
     session.modified = True
 
     return jsonify({"status": "ok"})
+
+import os
+print("MP TOKEN:", os.getenv("MP_ACCESS_TOKEN"))
+
 
 
 if __name__ == "__main__":
