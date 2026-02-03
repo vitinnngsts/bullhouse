@@ -345,49 +345,46 @@ sdk = mercadopago.SDK(os.getenv("MP_ACCESS_TOKEN"))
 
 @app.route("/pagar/<int:pedido_id>")
 def pagar(pedido_id):
-    conn = conectar()
-    cursor = conn.cursor()
+    try:
+        conn = conectar()
+        cursor = conn.cursor()
 
-    # pega total do pedido
-    cursor.execute(
-        "SELECT total FROM pedidos WHERE id = ?",
-        (pedido_id,)
-    )
-    total_pedido = cursor.fetchone()
-
-    if not total_pedido:
+        cursor.execute(
+            "SELECT nome, quantidade FROM itens WHERE pedido_id = ?",
+            (pedido_id,)
+        )
+        itens_db = cursor.fetchall()
         conn.close()
-        return "Pedido não encontrado", 404
 
-    total_pedido = float(total_pedido[0])
+        if not itens_db:
+            return "Pedido sem itens", 400
 
-    # pega itens
-    cursor.execute(
-        "SELECT nome, quantidade FROM itens WHERE pedido_id = ?",
-        (pedido_id,)
-    )
-    itens_db = cursor.fetchall()
-    conn.close()
+        itens = []
+        for nome, quantidade in itens_db:
+            itens.append({
+                "title": nome,
+                "quantity": quantidade,
+                "currency_id": "BRL",
+                "unit_price": 10  # valor fixo TEMPORÁRIO (obrigatório)
+            })
 
-    itens = []
-    for nome, quantidade in itens_db:
-        itens.append({
-            "title": nome,
-            "quantity": quantidade,
-            "currency_id": "BRL",
-            "unit_price": total_pedido / quantidade
-        })
+        preference_data = {
+            "items": itens,
+            "external_reference": str(pedido_id),
+            "notification_url": "https://SEU-SITE.onrender.com/webhook",
+            "auto_return": "approved"
+        }
 
-    preference_data = {
-        "items": itens,
-        "external_reference": str(pedido_id),
-        "notification_url": "https://SEU-SITE.onrender.com/webhook",
-        "auto_return": "approved"
-    }
+        preference = sdk.preference().create(preference_data)
 
-    preference = sdk.preference().create(preference_data)
+        if "response" not in preference or "init_point" not in preference["response"]:
+            return "Erro ao criar pagamento", 500
 
-    return redirect(preference["response"]["init_point"])
+        return redirect(preference["response"]["init_point"])
+
+    except Exception as e:
+        return f"Erro interno: {str(e)}", 500
+
 
 
 
