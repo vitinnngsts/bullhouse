@@ -348,23 +348,34 @@ def pagar(pedido_id):
     conn = conectar()
     cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT i.nome, i.quantidade, p.total
-        FROM itens i
-        JOIN pedidos p ON p.id = i.pedido_id
-        WHERE i.pedido_id = ?
-    """, (pedido_id,))
+    # pega total do pedido
+    cursor.execute(
+        "SELECT total FROM pedidos WHERE id = ?",
+        (pedido_id,)
+    )
+    total_pedido = cursor.fetchone()
 
+    if not total_pedido:
+        conn.close()
+        return "Pedido não encontrado", 404
+
+    total_pedido = float(total_pedido[0])
+
+    # pega itens
+    cursor.execute(
+        "SELECT nome, quantidade FROM itens WHERE pedido_id = ?",
+        (pedido_id,)
+    )
     itens_db = cursor.fetchall()
     conn.close()
 
     itens = []
-    for nome, quantidade, total in itens_db:
+    for nome, quantidade in itens_db:
         itens.append({
             "title": nome,
             "quantity": quantidade,
             "currency_id": "BRL",
-            "unit_price": float(total) / quantidade
+            "unit_price": total_pedido / quantidade
         })
 
     preference_data = {
@@ -377,7 +388,6 @@ def pagar(pedido_id):
     preference = sdk.preference().create(preference_data)
 
     return redirect(preference["response"]["init_point"])
-
 
 
 
