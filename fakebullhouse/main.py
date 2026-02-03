@@ -365,20 +365,38 @@ def pagar(pedido_id):
                 "title": nome,
                 "quantity": quantidade,
                 "currency_id": "BRL",
-                "unit_price": 10  # valor fixo TEMPORÁRIO (obrigatório)
+                "unit_price": 10.00  # VALOR > 0 (obrigatório)
             })
 
         preference_data = {
             "items": itens,
+
+            "payer": {
+                "email": "cliente@bullhouse.com"
+            },
+
+            "payment_methods": {
+                "excluded_payment_types": [],
+                "installments": 1
+            },
+
+            "back_urls": {
+                 "success": f"https://bullhouse.onrender.com/pedido/{pedido_id}",
+                 "failure": f"https://bullhouse.onrender.com/pedido/{pedido_id}",
+                 "pending": f"https://bullhouse.onrender.com/pedido/{pedido_id}"
+            },
+
+            "auto_return": "approved",
+
             "external_reference": str(pedido_id),
-            "notification_url": "https://SEU-SITE.onrender.com/webhook",
-            "auto_return": "approved"
+
+            "notification_url": "https://bullhouse.onrender.com/webhook"
         }
 
         preference = sdk.preference().create(preference_data)
 
         if "response" not in preference or "init_point" not in preference["response"]:
-            return "Erro ao criar pagamento", 500
+            return f"Erro Mercado Pago: {preference}", 500
 
         return redirect(preference["response"]["init_point"])
 
