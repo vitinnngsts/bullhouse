@@ -290,9 +290,37 @@ def remover_carrinho():
 
     return jsonify({"status": "ok"})
 
+import mercadopago
 import os
-print("MP TOKEN:", os.getenv("MP_ACCESS_TOKEN"))
 
+sdk = mercadopago.SDK(os.getenv("MP_ACCESS_TOKEN"))
+
+@app.route("/pagar")
+def pagar():
+    carrinho = session["carrinho"]
+
+    itens = []
+    for item in carrinho:
+        itens.append({
+            "title": item["nome"],
+            "quantity": item["quantidade"],
+            "currency_id": "BRL",
+            "unit_price": float(PRECOS[item["id"]])
+        })
+
+    preference_data = {
+        "items": itens,
+        "back_urls": {
+            "success": "https://SEU-SITE.onrender.com/sucesso",
+            "failure": "https://SEU-SITE.onrender.com/erro",
+            "pending": "https://SEU-SITE.onrender.com/pendente"
+        },
+        "auto_return": "approved"
+    }
+
+    preference = sdk.preference().create(preference_data)
+
+    return redirect(preference["response"]["init_point"])
 
 
 if __name__ == "__main__":
