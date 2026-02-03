@@ -215,10 +215,11 @@ def finalizar_pedido():
     conn.close()
 
     # salva pedido_id na sessão
-    session["pedido_id"] = pedido_id
+
     session.modified = True
 
-    return redirect("/pagar")
+    return redirect(f"/pedido/{pedido_id}")
+
 
 
 
