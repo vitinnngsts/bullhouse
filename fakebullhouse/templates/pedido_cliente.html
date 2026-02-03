@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Status do Pedido</title>
+</head>
+<body>
+
+<h1>Pedido # {{ pedido.id }}</h1>
+
+
+<p><strong>Total:</strong> {{ pedido.total }}</p>
+
+<h3>Itens</h3>
+<ul>
+    {% for item in pedido.itens %}
+    <li>{{ item.nome }} x{{ item.quantidade }}</li>
+    {% endfor %}
+</ul>
+
+<p><strong>Pagamento:</strong> {{ pedido.pagamento }}</p>
+<p><strong>Pagamento:</strong> {{ pedido.endereco }}</p>
+<p>Status: <strong id="status-pedido">{{ pedido.status }}</strong></p>
+<script>
+const pedidoId = "{{ pedido.id }}";
+
+function atualizarStatus() {
+    fetch(`/api/status/${pedidoId}`)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("status-pedido").innerText = data.status;
+        });
+}
+
+// chama a cada 3 segundos
+setInterval(atualizarStatus, 3000);
+</script>
+
+
+
+</body>
+</html>

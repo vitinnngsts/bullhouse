@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Pedido realizado</title>
+</head>
+<body>
+
+<h1>✅ Pedido realizado com sucesso!</h1>
+
+<p><strong>Cliente:</strong> {{ pedido.cliente }}</p>
+<p><strong>Endereço:</strong> {{ pedido.endereco }}</p>
+<p><strong>Pagamento:</strong> {{ pedido.pagamento }}</p>
+
+<h3>Itens</h3>
+<ul>
+{% for item in pedido.itens %}
+    <li>{{ item.nome }} — x{{ item.quantidade }}</li>
+{% endfor %}
+</ul>
+
+<p><strong>Total:</strong> R$ {{ pedido.total }}</p>
+
+<p>
+Acompanhe seu pedido em:
+<br>
+<a href="/pedido/{{ pedido.id }}">
+    /pedido/{{ pedido.id }}
+</a>
+</p>
+
+
+<a href="/">Voltar ao início</a>
+
+</body>
+</html>

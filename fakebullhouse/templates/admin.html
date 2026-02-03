@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Pedidos</title>
+</head>
+<body>
+
+<h1>📦 Pedidos Recebidos</h1>
+
+{% if pedidos|length == 0 %}
+<p>Nenhum pedido ainda.</p>
+{% else %}
+
+{% for pedido in pedidos %}
+<hr>
+<p> <strong>Cliente:</strong> {{ pedido.cliente }}</p>
+<p> <strong>Endereço:</strong> {{ pedido.endereco }}</p>
+<p> <strong>Pagamento:</strong> {{ pedido.pagamento }}</p>
+<p><strong>Status:</strong> {{ pedido.status }}</p>
+<form action="/alterar_status" method="post">
+    <input type="hidden" name="index" value="{{ loop.index0 }}">
+
+    <select name="status">
+        <option value="Novo">Novo</option>
+        <option value="Em preparo">Em preparo</option>
+        <option value="Saiu para entrega">Saiu para entrega</option>
+        <option value="Finalizado">Finalizado</option>
+        <option value="Cancelado">Cancelado</option>
+    </select>
+
+    <button type="submit">Atualizar status</button>
+</form>
+
+
+<ul>
+    {% for item in pedido.itens %}
+    <li>{{ item.nome }} x{{ item.quantidade }}</li>
+    {% endfor %}
+</ul>
+
+<p> <strong>Total:</strong>R$ {{pedido.total }}</p>
+{% endfor %}
+{% endif %}
+
+</body>
+</html>

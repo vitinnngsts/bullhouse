@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>CARDÁPIO BULL - Cardápio</title>
+
+<style>
+body {
+    background-image: url("{{ url_for('static',filename='fundo/fundo.png') }}");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.central {
+    text-align: center;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 30px;
+    border-radius: 20px;
+}
+
+h1 {
+    font-size: 120px;
+    color: white;
+    margin-bottom: 20px;
+    text-shadow: 3px 3px 5px black;
+}
+
+button {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+/* ===== MODAIS ===== */
+.modal-cardapio,
+.modal-porcoes,
+.modal-carrinho {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.modal-cardapio-content,
+.modal-porcoes-content,
+.modal-carrinho-content {
+    background: #111;
+    color: white;
+    width: 90%;
+    max-width: 1200px;
+    margin: 5% auto;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+}
+
+/* ===== CARDS ===== */
+.cardapio,
+.cardapio-porcoes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.card {
+    background: #222;
+    padding: 15px;
+    border-radius: 10px;
+    width: 300px;
+    cursor: pointer;
+}
+
+.card img {
+    width: 200px;
+}
+
+/* ===== OUTROS ===== */
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+#imagem-produto {
+    width: 150px;
+    border-radius: 10px;
+}
+
+.carrinho {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    background: #111;
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    width: 250px;
+    z-index: 200;
+}
+</style>
+</head>
+
+<body>
+
+<div class="central">
+    <h1>CARDÁPIO BULL</h1>
+    <img src="{{ url_for('static', filename='logo/logo.png') }}" width="180">
+    <br>
+    <button onclick="abrirModal('modal-cardapio')">HAMBÚRGUERES</button>
+    <button onclick="abrirModal('modal-porcoes')">PORÇÕES</button>
+</div>
+
+<!-- ================= HAMBÚRGUERES ================= -->
+<div id="modal-cardapio" class="modal-cardapio">
+<div class="modal-cardapio-content">
+<span class="close" onclick="fecharModal('modal-cardapio')">&times;</span>
+
+<h2>🍔 HAMBURGUERES BULL</h2>
+<div class="cardapio">
+{% for produto in produtos_hamburguer %}
+<div class="card"
+onclick="abrirModalCarrinho(
+{{ produto.id }},
+'{{ produto.nome }}',
+'{{ produto.imagem }}',
+'hamburgueres',
+'{{ produto.descricao | replace("\n"," ") }}'
+)">
+
+
+<img src="{{ url_for('static', filename='hamburgueres/' + produto.imagem) }}">
+<h3>{{ produto.nome }}</h3>
+<p>{{ produto.descricao }}</p>
+<strong>{{ produto.preco }}</strong>
+</div>
+{% endfor %}
+</div>
+</div>
+</div>
+
+<!-- ================= PORÇÕES ================= -->
+<div id="modal-porcoes" class="modal-porcoes">
+<div class="modal-porcoes-content">
+<span class="close" onclick="fecharModal('modal-porcoes')">&times;</span>
+
+<h2>🍟 Porções</h2>
+<div class="cardapio-porcoes">
+{% for produto in produtos_porcoes %}
+<div class="card"
+onclick="abrirModalCarrinho(
+{{ produto.id }},
+'{{ produto.nome }}',
+'{{ produto.imagem }}',
+'porcoes',
+'{{ produto.descricao | replace("\n"," ") }}'
+)">
+
+
+<img src="{{ url_for('static', filename='porcoes/' + produto.imagem) }}">
+<h3>{{ produto.nome }}</h3>
+<p>{{ produto.descricao }}</p>
+<strong>{{ produto.preco }}</strong>
+</div>
+{% endfor %}
+</div>
+</div>
+</div>
+
+<!-- ================= MODAL CARRINHO ================= -->
+<div id="modal-carrinho" class="modal-carrinho">
+<div class="modal-carrinho-content">
+<span class="close" onclick="fecharModal('modal-carrinho')">&times;</span>
+
+<img id="imagem-produto">
+<h2 id="nome-produto"></h2>
+<p id="descricao-produto"></p>
+
+<label>Quantidade</label>
+<input type="number" id="qtd" value="1">
+
+<label>Observações</label>
+<textarea id="obs"></textarea>
+
+<button onclick="adicionarCarrinho()">Adicionar ao carrinho</button>
+</div>
+</div>
+
+<!-- ================= CARRINHO VISUAL ================= -->
+<div class="carrinho">
+    <h3>🛒 Carrinho</h3>
+    <div id="lista-carrinho">
+        <p>Nenhum item no carrinho</p>
+    </div>
+
+    <p><strong>Total: R$ <span id="total">0.00</span></strong></p>
+
+    <a href="/checkout">
+        <button>Finalizar Pedido</button>
+    </a>
+</div>
+
+<script>
+let produtoAtual = {};
+
+function abrirModal(id) {
+    document.getElementById(id).style.display = "block";
+}
+
+function fecharModal(id) {
+    document.getElementById(id).style.display = "none";
+}
+
+function abrirModalCarrinho(id, nome, imagem, categoria, descricao) {
+    produtoAtual = { id, nome };
+
+    document.getElementById("nome-produto").innerText = nome;
+    document.getElementById("descricao-produto").innerText = descricao;
+    document.getElementById("imagem-produto").src =
+        "{{ url_for('static', filename='') }}" + categoria + "/" + imagem;
+
+    abrirModal("modal-carrinho");
+}
+
+function adicionarCarrinho() {
+    fetch("/add_carrinho", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            id: produtoAtual.id,
+            nome: produtoAtual.nome,
+            quantidade: document.getElementById("qtd").value,
+            observacoes: document.getElementById("obs").value
+        })
+    }).then(() => {
+        carregarCarrinho();
+        fecharModal("modal-carrinho");
+    });
+}
+
+function carregarCarrinho() {
+    fetch("/get_carrinho")
+        .then(res => res.json())
+        .then(carrinho => {
+            const lista = document.getElementById("lista-carrinho");
+            lista.innerHTML = "";
+
+            if (carrinho.length === 0) {
+                lista.innerHTML = "<p>Nenhum item no carrinho</p>";
+            }
+
+            carrinho.forEach(item => {
+                const div = document.createElement("div");
+                div.innerHTML = `
+                    • ${item.nome} x${item.quantidade}
+                    <button onclick="removerItem(${item.id})">❌</button>
+                `;
+                lista.appendChild(div);
+            });
+
+            atualizarTotal();
+        });
+}
+
+function atualizarTotal() {
+    fetch("/total")
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("total").innerText = data.total.toFixed(2);
+        });
+}
+
+function removerItem(id) {
+    fetch("/remover_carrinho", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ id })
+    }).then(() => carregarCarrinho());
+}
+
+window.onload = carregarCarrinho;
+</script>
+
+</body>
+</html>
