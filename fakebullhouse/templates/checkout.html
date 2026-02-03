@@ -1,54 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <title>Finalizar Pedido</title>
 </head>
 <body>
-<h1> Finalizar Pedido</h1>
 
-{% if carrinho|length== 0 %}
-<p> Seu carrinho está vazio.</p>
+<h1>Finalizar Pedido</h1>
+
+{% if carrinho|length == 0 %}
+    <p>Seu carrinho está vazio.</p>
 {% else %}
 
 <ul>
     {% for item in carrinho %}
-    <li>
-        {{ item.nome }} —
-        Quantidade: {{ item.quantidade }}
-    </li>
+        <li>{{ item.nome }} — Quantidade: {{ item.quantidade }}</li>
     {% endfor %}
 </ul>
 
-<p> <strong>Total:</strong>R$ {{ total }}</p>
+<p><strong>Total:</strong> R$ {{ total }}</p>
+
 <hr>
 
 <h3>Dados do cliente</h3>
 
 <form action="/finalizar_pedido" method="post">
-
-    <label>Nome:</label> <br>
-    <input type="text" name="nome" required> <br><br>
+    <label>Nome:</label><br>
+    <input type="text" name="nome" required><br><br>
 
     <label>Endereço:</label><br>
-    <textarea name="endereco" required></textarea> <br><br>
+    <textarea name="endereco" required></textarea><br><br>
 
-    <label>Forma de pagamento:</label><br>
-    <select name="pagamento" required>
-        <option value="Pix">Pix</option>
-        <option value="Cartão">Cartão</option>
-        <option value="Dinheiro">Dinheiro</option>
-    </select><br><br>
-
-    <button type="submit">Confirmar Pedido</button>
-
+    <button type="submit">Confirmar e Pagar</button>
 </form>
-{% endif %}
-<br>
-<a href="/pagar">
-    <button>💳 Pagar Agora</button>
-</a>
 
+{% endif %}
+
+<br>
 <a href="/">⬅ Voltar ao cardápio</a>
+
 </body>
 </html>
