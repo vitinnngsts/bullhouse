@@ -119,7 +119,7 @@ PRODUTOS_PORCOES = [
 PRECOS = {p["id"]: p["preco"] for p in PRODUTOS_HAMBURGUER + PRODUTOS_PORCOES}
 
 # ================= PEDIDOS =================
-PEDIDOS = []
+
 
 # ================= INIT =================
 @app.before_request
@@ -217,17 +217,57 @@ def finalizar_pedido():
 
 @app.route("/pedido/<int:pid>")
 def pedido_cliente(pid):
-    for p in PEDIDOS:
-        if p["id"] == pid:
-            return render_template("pedido_cliente.html", pedido=p)
-    return "Pedido não encontrado", 404
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT id, cliente, endereco, pagamento, total, status FROM pedidos WHERE id = ?",
+        (pid,)
+    )
+    pedido = cursor.fetchone()
+
+    if not pedido:
+        conn.close()
+        return "Pedido não encontrado", 404
+
+    cursor.execute(
+        "SELECT nome, quantidade, observacoes FROM itens WHERE pedido_id = ?",
+        (pid,)
+    )
+    itens = cursor.fetchall()
+
+    conn.close()
+
+    return render_template(
+        "pedido_cliente.html",
+        pedido={
+            "id": pedido[0],
+            "cliente": pedido[1],
+            "endereco": pedido[2],
+            "pagamento": pedido[3],
+            "total": pedido[4],
+            "status": pedido[5],
+            "itens": itens
+        }
+    )
+
 
 @app.route("/api/status/<int:pid>")
 def api_status(pid):
-    for p in PEDIDOS:
-        if p["id"] == pid:
-            return jsonify({"status": p["status"]})
-    return jsonify({"status": "Pedido não encontrado"}), 404
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT status FROM pedidos WHERE id = ?",
+        (pid,)
+    )
+    row = cursor.fetchone()
+    conn.close()
+
+    if not row:
+        return jsonify({"status": "Pedido não encontrado"}), 404
+
+    return jsonify({"status": row[0]})
 
 @app.route("/admin")
 def admin():

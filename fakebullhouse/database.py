@@ -19,13 +19,15 @@ def criar_tabelas():
     """)
 
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS itens (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        pedido_id INTEGER,
-        nome TEXT,
-        quantidade INTEGER,
-        observacoes TEXT
-    )
+ CREATE TABLE IF NOT EXISTS itens (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pedido_id INTEGER,
+    nome TEXT,
+    quantidade INTEGER,
+    observacoes TEXT,
+    FOREIGN KEY (pedido_id) REFERENCES pedidos(id)
+)
+
     """)
 
     conn.commit()
