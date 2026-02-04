@@ -2,92 +2,125 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Finalizar Pedido</title>
-
+    <title>Finalizar Pedido • BullHouse</title>
     <style>
         body {
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f4f6f8;
             margin: 0;
-            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #1f1f1f, #111);
+            color: #fff;
         }
 
         .container {
-            max-width: 500px;
-            margin: 40px auto;
-            background: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: #1c1c1c;
+            width: 100%;
+            max-width: 450px;
+            border-radius: 16px;
             padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            box-shadow: 0 10px 30px rgba(0,0,0,.6);
         }
 
         h1 {
             text-align: center;
+            margin-bottom: 10px;
+            color: #f5c400;
+        }
+
+        .sub {
+            text-align: center;
+            font-size: 14px;
+            color: #ccc;
             margin-bottom: 20px;
         }
 
         ul {
             list-style: none;
             padding: 0;
+            margin-bottom: 15px;
         }
 
-        li {
+        ul li {
             padding: 8px 0;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #333;
+            font-size: 14px;
         }
 
         .total {
             font-size: 18px;
             font-weight: bold;
-            margin: 20px 0;
-            text-align: right;
+            margin: 15px 0;
+            text-align: center;
+            color: #00e676;
         }
 
         label {
-            font-weight: bold;
+            font-size: 13px;
+            color: #aaa;
         }
 
         input, textarea {
             width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            margin: 6px 0 15px;
+            background: #2a2a2a;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #777;
         }
 
         button {
             width: 100%;
-            padding: 14px;
-            background: #111;
-            color: #fff;
-            font-size: 16px;
+            padding: 15px;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f5c400, #ff9800);
+            color: #000;
+            font-size: 16px;
+            font-weight: bold;
             cursor: pointer;
+            transition: 0.3s;
         }
 
         button:hover {
-            background: #333;
+            opacity: 0.9;
+            transform: scale(1.02);
         }
 
-        .voltar {
+        .back {
             display: block;
             text-align: center;
             margin-top: 15px;
-            color: #555;
+            color: #aaa;
             text-decoration: none;
+            font-size: 13px;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🧾 Finalizar Pedido</h1>
+    <div class="card">
 
-    {% if carrinho|length == 0 %}
-        <p>Seu carrinho está vazio.</p>
-    {% else %}
+        <h1>🍔 Finalizar Pedido</h1>
+        <p class="sub">Confirme seus dados para continuar</p>
+
+        {% if carrinho|length == 0 %}
+            <p>Seu carrinho está vazio.</p>
+        {% else %}
 
         <ul>
             {% for item in carrinho %}
@@ -100,18 +133,28 @@
         </div>
 
         <form action="/finalizar_pedido" method="post">
+
             <label>Nome</label>
-            <input type="text" name="nome" required>
+            <input type="text" name="nome" placeholder="Seu nome completo" required>
 
             <label>Endereço</label>
-            <textarea name="endereco" rows="3" required></textarea>
+            <input type="text" name="endereco" placeholder="Rua e número" required>
 
-            <button type="submit">Confirmar Pedido</button>
+            <label>Bairro</label>
+            <input type="text" name="bairro" placeholder="Ex: Centro" required>
+
+            <label>CEP</label>
+            <input type="text" name="cep" placeholder="00000-000" required>
+
+            <button type="submit">
+                💳 Confirmar e Pagar
+            </button>
         </form>
 
-    {% endif %}
+        {% endif %}
 
-    <a href="/" class="voltar">⬅ Voltar ao cardápio</a>
+        <a class="back" href="/">⬅ Voltar ao cardápio</a>
+    </div>
 </div>
 
 </body>

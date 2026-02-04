@@ -2,123 +2,180 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Finalizar Pedido</title>
-
+    <title>Pedido #{{ pedido.id }} • BullHouse</title>
     <style>
         body {
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f4f6f8;
             margin: 0;
-            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #1f1f1f, #0f0f0f);
+            color: #fff;
         }
 
         .container {
-            max-width: 500px;
-            margin: 40px auto;
-            background: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: #1c1c1c;
+            width: 100%;
+            max-width: 450px;
+            border-radius: 16px;
             padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            box-shadow: 0 10px 30px rgba(0,0,0,.6);
         }
 
         h1 {
             text-align: center;
+            color: #f5c400;
+            margin-bottom: 5px;
+        }
+
+        .sub {
+            text-align: center;
+            font-size: 14px;
+            color: #aaa;
             margin-bottom: 20px;
+        }
+
+        .info p {
+            margin: 6px 0;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        .info strong {
+            color: #fff;
         }
 
         ul {
             list-style: none;
             padding: 0;
+            margin: 15px 0;
         }
 
-        li {
+        ul li {
             padding: 8px 0;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #333;
+            font-size: 14px;
         }
 
         .total {
+            text-align: center;
             font-size: 18px;
             font-weight: bold;
-            margin: 20px 0;
-            text-align: right;
+            margin: 15px 0;
+            color: #00e676;
         }
 
-        label {
-            font-weight: bold;
+        .status {
+            text-align: center;
+            font-size: 15px;
+            margin-top: 10px;
         }
 
-        input, textarea {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
+        .status span {
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: #333;
+        }
+
+        .status.aguardando span {
+            background: #ff9800;
+            color: #000;
+        }
+
+        .status.pago span {
+            background: #00e676;
+            color: #000;
         }
 
         button {
             width: 100%;
-            padding: 14px;
-            background: #111;
-            color: #fff;
-            font-size: 16px;
+            padding: 15px;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f5c400, #ff9800);
+            color: #000;
+            font-size: 16px;
+            font-weight: bold;
             cursor: pointer;
+            margin-top: 15px;
+            transition: .3s;
         }
 
         button:hover {
-            background: #333;
+            opacity: .9;
+            transform: scale(1.02);
         }
 
-        .voltar {
+        .back {
             display: block;
             text-align: center;
             margin-top: 15px;
-            color: #555;
+            color: #aaa;
             text-decoration: none;
+            font-size: 13px;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>Pedido #{{ pedido.id }}</h1>
+    <div class="card">
 
-<p><strong>Total:</strong> R$ {{ pedido.total }}</p>
-<p><strong>Endereço:</strong> {{ pedido.endereco }}</p>
-<p><strong>Status:</strong>
-    <span id="status-pedido">{{ pedido.status }}</span>
-</p>
+        <h1>🍔 Pedido #{{ pedido.id }}</h1>
+        <p class="sub">Acompanhe o status do seu pedido</p>
 
-<h3>Itens</h3>
-<ul>
-{% for item in pedido.itens %}
-    <li>{{ item.nome }} x{{ item.quantidade }}</li>
-{% endfor %}
-</ul>
+        <div class="info">
+            <p><strong>Cliente:</strong> {{ pedido.cliente }}</p>
+            <p><strong>Endereço:</strong> {{ pedido.endereco }}</p>
+            <p><strong>Pagamento:</strong> {{ pedido.pagamento }}</p>
+        </div>
 
-{% if pedido.status == "Aguardando pagamento" %}
-    <a href="/pagar/{{ pedido.id }}">
-        <button style="padding:12px 20px;font-size:18px;">
-            💳 Pagar agora
-        </button>
-    </a>
-{% endif %}
+        <ul>
+            {% for item in pedido.itens %}
+                <li>{{ item.nome }} × {{ item.quantidade }}</li>
+            {% endfor %}
+        </ul>
+
+        <div class="total">
+            Total: R$ {{ pedido.total }}
+        </div>
+
+        <div class="status {% if pedido.status == 'Aguardando pagamento' %}aguardando{% else %}pago{% endif %}">
+            Status:
+            <span id="status-pedido">{{ pedido.status }}</span>
+        </div>
+
+        {% if pedido.status == "Aguardando pagamento" %}
+            <a href="/pagar/{{ pedido.id }}">
+                <button>💳 Pagar agora</button>
+            </a>
+        {% endif %}
+
+        <a class="back" href="/">⬅ Voltar ao cardápio</a>
+
+    </div>
+</div>
 
 <script>
 const pedidoId = "{{ pedido.id }}";
 
-setInterval(() => {
+function atualizarStatus() {
     fetch(`/api/status/${pedidoId}`)
         .then(res => res.json())
         .then(data => {
-            document.getElementById("status-pedido").innerText = data.status;
+            const statusEl = document.getElementById("status-pedido");
+            statusEl.innerText = data.status;
         });
-}, 3000);
-</script>
+}
 
-</div>
+setInterval(atualizarStatus, 3000);
+</script>
 
 </body>
 </html>
