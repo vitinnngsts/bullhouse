@@ -1,50 +1,118 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Status do Pedido</title>
+    <title>Finalizar Pedido</title>
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .total {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-align: right;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #111;
+            color: #fff;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #333;
+        }
+
+        .voltar {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #555;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
 
-<h1>Pedido # {{ pedido.id }}</h1>
+<div class="container">
+    <h1>🧾 Finalizar Pedido</h1>
 
+    {% if carrinho|length == 0 %}
+        <p>Seu carrinho está vazio.</p>
+    {% else %}
 
-<p><strong>Total:</strong> {{ pedido.total }}</p>
+        <ul>
+            {% for item in carrinho %}
+                <li>{{ item.nome }} × {{ item.quantidade }}</li>
+            {% endfor %}
+        </ul>
 
-<h3>Itens</h3>
-<ul>
-    {% for item in pedido.itens %}
-    <li>{{ item.nome }} x{{ item.quantidade }}</li>
-    {% endfor %}
-</ul>
+        <div class="total">
+            Total: R$ {{ total }}
+        </div>
 
-<p><strong>Pagamento:</strong> {{ pedido.pagamento }}</p>
-<p><strong>Endereço:</strong> {{ pedido.endereco }}</p>
+        <form action="/finalizar_pedido" method="post">
+            <label>Nome</label>
+            <input type="text" name="nome" required>
 
+            <label>Endereço</label>
+            <textarea name="endereco" rows="3" required></textarea>
 
-<p>Status: <strong id="status-pedido">{{ pedido.status }}</strong></p>
+            <button type="submit">Confirmar Pedido</button>
+        </form>
 
-{% if pedido.status == "Aguardando pagamento" %}
-    <a href="/pagar/{{ pedido.id }}">
-        <button>💳 Pagar agora</button>
-    </a>
-{% endif %}
+    {% endif %}
 
-<script>
-const pedidoId = "{{ pedido.id }}";
-
-function atualizarStatus() {
-    fetch(`/api/status/${pedidoId}`)
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById("status-pedido").innerText = data.status;
-        });
-}
-
-setInterval(atualizarStatus, 3000);
-</script>
-
-
+    <a href="/" class="voltar">⬅ Voltar ao cardápio</a>
+</div>
 
 </body>
 </html>

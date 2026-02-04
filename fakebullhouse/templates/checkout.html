@@ -3,47 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <title>Finalizar Pedido</title>
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .total {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-align: right;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #111;
+            color: #fff;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #333;
+        }
+
+        .voltar {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #555;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
 
-<h1>Finalizar Pedido</h1>
+<div class="container">
+    <h1>🧾 Finalizar Pedido</h1>
 
-{% if carrinho|length == 0 %}
-    <p>Seu carrinho está vazio.</p>
-{% else %}
+    {% if carrinho|length == 0 %}
+        <p>Seu carrinho está vazio.</p>
+    {% else %}
 
-<ul>
-    {% for item in carrinho %}
-        <li>{{ item.nome }} — Quantidade: {{ item.quantidade }}</li>
-    {% endfor %}
-</ul>
+        <ul>
+            {% for item in carrinho %}
+                <li>{{ item.nome }} × {{ item.quantidade }}</li>
+            {% endfor %}
+        </ul>
 
-<p><strong>Total:</strong> R$ {{ total }}</p>
+        <div class="total">
+            Total: R$ {{ total }}
+        </div>
 
-<hr>
+        <form action="/finalizar_pedido" method="post">
+            <label>Nome</label>
+            <input type="text" name="nome" required>
 
-<h3>Dados do cliente</h3>
+            <label>Endereço</label>
+            <textarea name="endereco" rows="3" required></textarea>
 
-<form action="/finalizar_pedido" method="post">
-    <label>Nome:</label><br>
-    <input type="text" name="nome" required><br><br>
+            <button type="submit">Confirmar Pedido</button>
+        </form>
 
-    <label>Endereço:</label><br>
-    <textarea name="endereco" required></textarea><br><br>
+    {% endif %}
 
-    <label>Bairro:</label><br>
-    <textarea name="bairro" required></textarea><br><br>
-
-    <label>Nº:</label><br>
-    <textarea name="endereco" required></textarea><br><br>
-
-    <button type="submit">Confirmar Pedido</button>
-</form>
-
-{% endif %}
-
-<br>
-<a href="/">⬅ Voltar ao cardápio</a>
+    <a href="/" class="voltar">⬅ Voltar ao cardápio</a>
+</div>
 
 </body>
 </html>
