@@ -345,48 +345,50 @@ sdk = mercadopago.SDK(os.getenv("MP_ACCESS_TOKEN"))
 
 @app.route("/pagar/<int:pedido_id>")
 def pagar(pedido_id):
-    conn = conectar()
-    cursor = conn.cursor()
+    try:
+        conn = conectar()
+        cursor = conn.cursor()
 
-    cursor.execute(
-        "SELECT total FROM pedidos WHERE id = ?",
-        (pedido_id,)
-    )
-    pedido = cursor.fetchone()
+        cursor.execute(
+            "SELECT total FROM pedidos WHERE id = ?",
+            (pedido_id,)
+        )
+        pedido = cursor.fetchone()
 
-    if not pedido:
+        if not pedido:
+            conn.close()
+            return "Pedido não encontrado", 404
+
+        total = float(pedido[0])
+
+        cursor.execute(
+            "SELECT nome, quantidade FROM itens WHERE pedido_id = ?",
+            (pedido_id,)
+        )
+        itens_db = cursor.fetchall()
         conn.close()
-        return redirect("/")
 
-    total = float(pedido[0])
-
-    cursor.execute(
-        "SELECT nome, quantidade FROM itens WHERE pedido_id = ?",
-        (pedido_id,)
-    )
-    itens_db = cursor.fetchall()
-
-    conn.close()
-
-    itens = []
-    for nome, quantidade in itens_db:
-        itens.append({
+        itens = [{
             "title": nome,
             "quantity": quantidade,
             "currency_id": "BRL",
-            "unit_price": total / len(itens_db)  # divide certinho
-        })
+            "unit_price": total / len(itens_db)
+        } for nome, quantidade in itens_db]
 
-    preference_data = {
-        "items": itens,
-        "external_reference": str(pedido_id),
-        "notification_url": "https://SEU-SITE.onrender.com/webhook",
-        "auto_return": "approved"
-    }
+        preference_data = {
+            "items": itens,
+            "external_reference": str(pedido_id),
+            "notification_url": "https://SEU-SITE.onrender.com/webhook",
+            "auto_return": "approved"
+        }
 
-    preference = sdk.preference().create(preference_data)
+        preference = sdk.preference().create(preference_data)
 
-    return redirect(preference["response"]["init_point"])
+        return redirect(preference["response"]["init_point"])
+
+    except Exception as e:
+        return f"Erro ao criar pagamento: {str(e)}", 500
+
 
 
 
