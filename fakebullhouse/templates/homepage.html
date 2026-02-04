@@ -2,158 +2,202 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>CARDÁPIO BULL</title>
+<title>Cardápio Bull</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-/* ================= BASE ================= */
-body {
-    margin: 0;
-    min-height: 100vh;
-    background: #000;
-    color: white;
+/* ===== RESET ===== */
+* {
+    box-sizing: border-box;
     font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
-/* TOURO CENTRAL */
+/* ===== FUNDO ===== */
+body {
+    margin: 0;
+    background: black;
+    color: white;
+    min-height: 100vh;
+}
+
+/* ===== TOURO DE FUNDO ===== */
 .touro {
     position: fixed;
     inset: 0;
-    background: url("{{ url_for('static',filename='logo/logo.png') }}") no-repeat center;
-    background-size: 60%;
-    opacity: 0.35;
-    z-index: -1;
+    background: url("{{ url_for('static', filename='logo/logo.png') }}") no-repeat center;
+    background-size: 65%;
+    opacity: 0.65;
+    z-index: -2;
+    filter: drop-shadow(0 0 60px rgba(225,0,0,0.5));
 }
 
-/* ================= CENTRAL ================= */
+/* ===== CONTAINER CENTRAL ===== */
 .central {
     text-align: center;
-    background: rgba(0,0,0,0.65);
-    padding: 40px 30px;
-    border-radius: 25px;
-    max-width: 900px;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(5px);
+    padding: 30px;
+    border-radius: 20px;
+    max-width: 420px;
+    margin: 40px auto;
 }
 
 h1 {
-    font-size: clamp(48px, 9vw, 120px);
+    font-size: 48px;
+    margin-bottom: 10px;
+    color: #ff0000;
+}
+
+.central img {
+    width: 160px;
     margin-bottom: 20px;
-    color: #fff;
-    text-shadow: 4px 4px 8px #000;
 }
 
 button {
-    margin: 10px;
-    padding: 14px 28px;
-    font-size: 18px;
-    border-radius: 14px;
+    padding: 14px;
+    width: 100%;
+    margin-top: 10px;
     border: none;
-    cursor: pointer;
+    border-radius: 10px;
     background: #e10600;
     color: white;
-    font-weight: bold;
+    font-size: 18px;
+    cursor: pointer;
 }
 
 button:hover {
-    background: #ff1e1e;
+    opacity: 0.9;
 }
 
-/* ================= MODAIS ================= */
+/* ===== MODAIS ===== */
 .modal {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.9);
+    background: rgba(0,0,0,0.95);
+    z-index: 10;
     overflow-y: auto;
-    z-index: 100;
 }
 
 .modal-content {
     background: #111;
-    width: 90%;
-    max-width: 1200px;
-    margin: 5% auto;
-    padding: 25px;
-    border-radius: 18px;
-    text-align: center;
-    position: relative;
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 20px;
+    border-radius: 15px;
 }
 
 .close {
-    position: absolute;
-    top: 15px;
-    right: 20px;
     font-size: 28px;
+    float: right;
     cursor: pointer;
 }
 
-/* ================= CARDS ================= */
-.cardapio {
+/* ===== CARDS ===== */
+.grid {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
     gap: 20px;
+    justify-content: center;
 }
 
 .card {
     background: #1a1a1a;
+    border-radius: 15px;
     padding: 15px;
-    border-radius: 16px;
     width: 280px;
     cursor: pointer;
-    transition: transform .2s;
+    transition: transform 0.2s;
 }
 
-.card:hover { transform: scale(1.05); }
+.card:hover {
+    transform: scale(1.03);
+}
 
-.card img { width: 180px; }
+.card img {
+    width: 100%;
+    border-radius: 10px;
+}
 
-/* ================= CARRINHO FLOAT ================= */
-.carrinho-float {
+.card h3 {
+    margin: 10px 0 5px;
+    color: #ff0000;
+}
+
+/* ===== MODAL PRODUTO ===== */
+#modal-carrinho img {
+    width: 150px;
+    margin-bottom: 10px;
+}
+
+/* ===== CARRINHO FLUTUANTE ===== */
+.carrinho-btn {
     position: fixed;
     right: 20px;
     bottom: 20px;
-    z-index: 200;
-}
-
-.btn-carrinho {
     background: #e10600;
-    border: none;
-    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     font-size: 26px;
-    padding: 16px;
-    border-radius: 50%;
     cursor: pointer;
-    position: relative;
+    z-index: 20;
 }
 
-#badge {
+.carrinho-contador {
     position: absolute;
-    top: -6px;
-    right: -6px;
-    background: black;
-    color: white;
-    font-size: 13px;
-    padding: 4px 7px;
+    top: -5px;
+    right: -5px;
+    background: white;
+    color: black;
+    font-size: 14px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
 }
 
-/* ================= LISTA CARRINHO ================= */
-.item {
+/* ===== CARRINHO MODAL ===== */
+.carrinho-modal {
+    display: none;
+    position: fixed;
+    right: 20px;
+    bottom: 90px;
+    background: #111;
+    width: 300px;
+    padding: 15px;
+    border-radius: 15px;
+    z-index: 30;
+}
+
+.item-carrinho {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
 }
 
-.remover {
+.item-carrinho button {
     background: transparent;
-    border: none;
     color: red;
-    font-size: 18px;
-    cursor: pointer;
+    font-size: 16px;
+    width: auto;
+}
+
+/* ===== RESPONSIVO ===== */
+@media (max-width: 768px) {
+    .touro {
+        background-size: 90%;
+    }
+
+    h1 {
+        font-size: 36px;
+    }
 }
 </style>
 </head>
@@ -163,19 +207,20 @@ button:hover {
 <div class="touro"></div>
 
 <div class="central">
-    <h1>CARDÁPIO BULL</h1>
-    <button onclick="abrirModal('hamburgueres')">🍔 HAMBÚRGUERES</button>
-    <button onclick="abrirModal('porcoes')">🍟 PORÇÕES</button>
+    <h1>BULL HOUSE</h1>
+    <img src="{{ url_for('static', filename='logo/logo.png') }}">
+    <button onclick="abrirModal('hamburgueres')">🍔 Hambúrgueres</button>
+    <button onclick="abrirModal('porcoes')">🍟 Porções</button>
 </div>
 
-<!-- ================= HAMBÚRGUERES ================= -->
+<!-- ===== MODAL HAMBURGUERES ===== -->
 <div id="hamburgueres" class="modal">
 <div class="modal-content">
-<span class="close" onclick="fecharModal('hamburgueres')">&times;</span>
-
-<div class="cardapio">
+<span class="close" onclick="fecharModal('hamburgueres')">×</span>
+<h2>Hambúrgueres</h2>
+<div class="grid">
 {% for p in produtos_hamburguer %}
-<div class="card" onclick="abrirAdd({{p.id}}, '{{p.nome}}')">
+<div class="card" onclick="abrirProduto({{ p.id }}, '{{ p.nome }}', '{{ p.imagem }}', '{{ p.descricao }}')">
 <img src="{{ url_for('static', filename='hamburgueres/' + p.imagem) }}">
 <h3>{{ p.nome }}</h3>
 <p>{{ p.descricao }}</p>
@@ -186,101 +231,86 @@ button:hover {
 </div>
 </div>
 
-<!-- ================= ADD ================= -->
-<div id="add" class="modal">
+<!-- ===== MODAL PRODUTO ===== -->
+<div id="modal-carrinho" class="modal">
 <div class="modal-content">
-<span class="close" onclick="fecharModal('add')">&times;</span>
-
-<h2 id="nome"></h2>
-<label>Quantidade</label><br>
-<input type="number" id="qtd" value="1"><br><br>
-<button onclick="addCarrinho()">Adicionar</button>
+<span class="close" onclick="fecharModal('modal-carrinho')">×</span>
+<img id="img-produto">
+<h2 id="nome-produto"></h2>
+<p id="desc-produto"></p>
+<input type="number" id="qtd" value="1" min="1">
+<textarea id="obs" placeholder="Observações"></textarea>
+<button onclick="adicionar()">Adicionar</button>
 </div>
 </div>
 
-<!-- ================= CARRINHO ================= -->
-<div id="carrinho" class="modal">
-<div class="modal-content">
-<span class="close" onclick="fecharModal('carrinho')">&times;</span>
+<!-- ===== CARRINHO ===== -->
+<div class="carrinho-btn" onclick="toggleCarrinho()">
+🛒
+<div class="carrinho-contador" id="contador">0</div>
+</div>
 
-<h2>🛒 Carrinho</h2>
+<div class="carrinho-modal" id="carrinho-modal">
 <div id="lista"></div>
-
-<a href="/checkout">
-<button>Finalizar Pedido</button>
-</a>
-</div>
-</div>
-
-<!-- ================= BOTÃO CARRINHO ================= -->
-<div class="carrinho-float">
-<button class="btn-carrinho" onclick="abrirCarrinho()">
-🛒 <span id="badge">0</span>
-</button>
+<p><strong>Total: R$ <span id="total">0.00</span></strong></p>
+<a href="/checkout"><button>Finalizar</button></a>
 </div>
 
 <script>
-let atual = {};
+let produtoAtual = {};
 
 function abrirModal(id){ document.getElementById(id).style.display="block"; }
 function fecharModal(id){ document.getElementById(id).style.display="none"; }
 
-function abrirAdd(id,nome){
-    atual={id,nome};
-    document.getElementById("nome").innerText=nome;
-    abrirModal("add");
+function abrirProduto(id,nome,img,desc){
+    produtoAtual={id,nome};
+    document.getElementById("nome-produto").innerText=nome;
+    document.getElementById("desc-produto").innerText=desc;
+    document.getElementById("img-produto").src="{{ url_for('static', filename='hamburgueres/') }}"+img;
+    abrirModal("modal-carrinho");
 }
 
-function addCarrinho(){
-    fetch("/add_carrinho",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-            id:atual.id,
-            nome:atual.nome,
-            quantidade:document.getElementById("qtd").value
-        })
-    }).then(()=>{
-        fecharModal("add");
-        atualizarCarrinho();
-    });
+function adicionar(){
+fetch("/add_carrinho",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+id:produtoAtual.id,
+nome:produtoAtual.nome,
+quantidade:document.getElementById("qtd").value,
+observacoes:document.getElementById("obs").value
+})
+}).then(()=>{fecharModal("modal-carrinho");carregar();});
 }
 
-function abrirCarrinho(){
-    atualizarCarrinho();
-    abrirModal("carrinho");
+function toggleCarrinho(){
+const c=document.getElementById("carrinho-modal");
+c.style.display=c.style.display==="block"?"none":"block";
 }
 
-function atualizarCarrinho(){
-    fetch("/get_carrinho")
-    .then(r=>r.json())
-    .then(c=>{
-        const lista=document.getElementById("lista");
-        lista.innerHTML="";
-        let total=0;
-
-        c.forEach(i=>{
-            total+=Number(i.quantidade);
-            lista.innerHTML+=`
-            <div class="item">
-                ${i.nome} x${i.quantidade}
-                <button class="remover" onclick="remover(${i.id})">❌</button>
-            </div>`;
-        });
-
-        document.getElementById("badge").innerText=total;
-    });
+function carregar(){
+fetch("/get_carrinho").then(r=>r.json()).then(d=>{
+document.getElementById("lista").innerHTML="";
+document.getElementById("contador").innerText=d.length;
+d.forEach(i=>{
+document.getElementById("lista").innerHTML+=`
+<div class="item-carrinho">
+${i.nome} x${i.quantidade}
+<button onclick="remover(${i.id})">❌</button>
+</div>`;
+});
+});
+fetch("/total").then(r=>r.json()).then(d=>{
+document.getElementById("total").innerText=d.total.toFixed(2);
+});
 }
 
 function remover(id){
-    fetch("/remover_carrinho",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({id})
-    }).then(atualizarCarrinho);
+fetch("/remover_carrinho",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})})
+.then(()=>carregar());
 }
 
-window.onload = atualizarCarrinho;
+window.onload=carregar;
 </script>
 
 </body>
