@@ -6,65 +6,56 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-/* ===== RESET ===== */
 * {
     box-sizing: border-box;
     font-family: Arial, sans-serif;
 }
 
-/* ===== BODY ===== */
 body {
-    background-image: url("{{ url_for('static',filename='fundo/fundo.png') }}");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    min-height: 100vh;
     margin: 0;
-    padding: 20px;
+    background: #000;
+    color: white;
+}
+
+/* ===== HERO ===== */
+.hero {
+    min-height: 100vh;
+    padding: 30px 20px 120px;
     display: flex;
-    justify-content: center;
-}
-
-/* ===== CENTRAL ===== */
-.central {
-    width: 100%;
-    max-width: 480px;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
-    background: rgba(0, 0, 0, 0.75);
-    padding: 25px;
-    border-radius: 20px;
 }
 
-h1 {
+.hero img {
+    max-width: 260px;
+    margin: 20px 0;
+}
+
+.hero h1 {
+    color: #c10000;
     font-size: 42px;
-    color: #ff7a00;
-    margin-bottom: 10px;
-    text-shadow: 2px 2px 4px black;
-}
-
-.central img {
-    width: 140px;
     margin-bottom: 20px;
+    letter-spacing: 2px;
 }
 
 /* ===== BOTÕES ===== */
-.btn-menu {
+.btn {
     width: 100%;
-    padding: 14px;
+    max-width: 320px;
+    padding: 16px;
     margin: 10px 0;
     font-size: 18px;
+    font-weight: bold;
     border-radius: 12px;
     border: none;
     cursor: pointer;
-    background: #ff7a00;
+    background: #c10000;
     color: white;
-    font-weight: bold;
 }
 
 /* ===== MODAIS ===== */
-.modal-cardapio,
-.modal-porcoes,
-.modal-carrinho {
+.modal {
     display: none;
     position: fixed;
     inset: 0;
@@ -75,12 +66,11 @@ h1 {
 
 .modal-content {
     background: #111;
-    color: white;
     width: 95%;
     max-width: 1000px;
     margin: 40px auto;
     padding: 20px;
-    border-radius: 15px;
+    border-radius: 16px;
     position: relative;
 }
 
@@ -95,15 +85,14 @@ h1 {
 /* ===== CARDS ===== */
 .cardapio {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
     gap: 15px;
-    margin-top: 20px;
 }
 
 .card {
-    background: #222;
+    background: #1a1a1a;
     padding: 15px;
-    border-radius: 15px;
+    border-radius: 14px;
     cursor: pointer;
 }
 
@@ -111,43 +100,16 @@ h1 {
     width: 100%;
     max-height: 160px;
     object-fit: contain;
-    margin-bottom: 10px;
 }
 
 .card h3 {
-    margin: 5px 0;
-    color: #ff7a00;
+    color: #c10000;
+    margin: 8px 0;
 }
 
 .card strong {
     display: block;
     margin-top: 8px;
-}
-
-/* ===== MODAL PRODUTO ===== */
-#imagem-produto {
-    width: 140px;
-    margin: 10px auto;
-    display: block;
-}
-
-.modal-carrinho-content input,
-.modal-carrinho-content textarea {
-    width: 100%;
-    padding: 10px;
-    margin: 8px 0;
-    border-radius: 8px;
-    border: none;
-}
-
-.modal-carrinho-content button {
-    width: 100%;
-    padding: 14px;
-    background: #ff7a00;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
 }
 
 /* ===== CARRINHO FLOAT ===== */
@@ -157,24 +119,22 @@ h1 {
     right: 20px;
     width: 60px;
     height: 60px;
-    background: #ff7a00;
-    color: white;
+    background: #c10000;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 26px;
-    text-decoration: none;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.4);
-    z-index: 999;
+    cursor: pointer;
+    z-index: 200;
 }
 
 .carrinho-float span {
     position: absolute;
     top: -6px;
     right: -6px;
-    background: red;
-    color: white;
+    background: white;
+    color: black;
     width: 22px;
     height: 22px;
     border-radius: 50%;
@@ -184,34 +144,59 @@ h1 {
     align-items: center;
     justify-content: center;
 }
+
+/* ===== MODAL CARRINHO ===== */
+.carrinho-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #333;
+}
+
+.carrinho-item button {
+    background: none;
+    border: none;
+    color: red;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.total {
+    font-size: 20px;
+    margin: 15px 0;
+}
+
+.finalizar {
+    width: 100%;
+    padding: 14px;
+    background: #c10000;
+    border: none;
+    border-radius: 12px;
+    font-size: 18px;
+    color: white;
+}
 </style>
 </head>
 
 <body>
 
-<div class="central">
-    <h1>CARDÁPIO BULL</h1>
-    <img src="{{ url_for('static', filename='logo/logo.png') }}">
+<div class="hero">
+    <img src="{{ url_for('static', filename='logo/touro.png') }}">
+    <h1>BULL HOUSE</h1>
 
-    <button class="btn-menu" onclick="abrirModal('modal-cardapio')">🍔 Hambúrgueres</button>
-    <button class="btn-menu" onclick="abrirModal('modal-porcoes')">🍟 Porções</button>
+    <button class="btn" onclick="abrirModal('hamburgueres')">🍔 Hambúrgueres</button>
+    <button class="btn" onclick="abrirModal('porcoes')">🍟 Porções</button>
 </div>
 
-<!-- ===== HAMBURGUERES ===== -->
-<div id="modal-cardapio" class="modal-cardapio">
+<!-- ===== MODAL HAMBURGUERES ===== -->
+<div id="hamburgueres" class="modal">
 <div class="modal-content">
-<span class="close" onclick="fecharModal('modal-cardapio')">&times;</span>
-<h2>🍔 Hambúrgueres</h2>
+<span class="close" onclick="fecharModal('hamburgueres')">&times;</span>
 
 <div class="cardapio">
 {% for produto in produtos_hamburguer %}
-<div class="card" onclick="abrirModalCarrinho(
-{{ produto.id }},
-'{{ produto.nome }}',
-'{{ produto.imagem }}',
-'hamburgueres',
-'{{ produto.descricao | replace("\n"," ") }}'
-)">
+<div class="card" onclick="addCarrinho({{ produto.id }}, '{{ produto.nome }}')">
 <img src="{{ url_for('static', filename='hamburgueres/' + produto.imagem) }}">
 <h3>{{ produto.nome }}</h3>
 <p>{{ produto.descricao }}</p>
@@ -222,21 +207,14 @@ h1 {
 </div>
 </div>
 
-<!-- ===== PORÇÕES ===== -->
-<div id="modal-porcoes" class="modal-porcoes">
+<!-- ===== MODAL PORÇÕES ===== -->
+<div id="porcoes" class="modal">
 <div class="modal-content">
-<span class="close" onclick="fecharModal('modal-porcoes')">&times;</span>
-<h2>🍟 Porções</h2>
+<span class="close" onclick="fecharModal('porcoes')">&times;</span>
 
 <div class="cardapio">
 {% for produto in produtos_porcoes %}
-<div class="card" onclick="abrirModalCarrinho(
-{{ produto.id }},
-'{{ produto.nome }}',
-'{{ produto.imagem }}',
-'porcoes',
-'{{ produto.descricao | replace("\n"," ") }}'
-)">
+<div class="card" onclick="addCarrinho({{ produto.id }}, '{{ produto.nome }}')">
 <img src="{{ url_for('static', filename='porcoes/' + produto.imagem) }}">
 <h3>{{ produto.nome }}</h3>
 <p>{{ produto.descricao }}</p>
@@ -248,76 +226,68 @@ h1 {
 </div>
 
 <!-- ===== MODAL CARRINHO ===== -->
-<div id="modal-carrinho" class="modal-carrinho">
-<div class="modal-content modal-carrinho-content">
+<div id="modal-carrinho" class="modal">
+<div class="modal-content">
 <span class="close" onclick="fecharModal('modal-carrinho')">&times;</span>
 
-<img id="imagem-produto">
-<h2 id="nome-produto"></h2>
-<p id="descricao-produto"></p>
+<h2>🛒 Seu carrinho</h2>
+<div id="lista-carrinho"></div>
 
-<label>Quantidade</label>
-<input type="number" id="qtd" value="1" min="1">
+<p class="total">Total: R$ <span id="total">0.00</span></p>
 
-<label>Observações</label>
-<textarea id="obs"></textarea>
-
-<button onclick="adicionarCarrinho()">Adicionar ao carrinho</button>
-</div>
-</div>
-
-<!-- ===== CARRINHO FLOAT ===== -->
-<a href="/checkout" class="carrinho-float">
-🛒
-<span id="qtd-carrinho">0</span>
+<a href="/checkout">
+    <button class="finalizar">Finalizar Pedido</button>
 </a>
+</div>
+</div>
+
+<div class="carrinho-float" onclick="abrirModal('modal-carrinho')">
+🛒 <span id="qtd">0</span>
+</div>
 
 <script>
-let produtoAtual = {};
+function abrirModal(id){ document.getElementById(id).style.display="block"; }
+function fecharModal(id){ document.getElementById(id).style.display="none"; }
 
-function abrirModal(id) {
-    document.getElementById(id).style.display = "block";
+function addCarrinho(id, nome){
+    fetch("/add_carrinho",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({id,nome,quantidade:1})
+    }).then(atualizarCarrinho);
 }
 
-function fecharModal(id) {
-    document.getElementById(id).style.display = "none";
-}
+function atualizarCarrinho(){
+    fetch("/get_carrinho").then(r=>r.json()).then(c=>{
+        const lista=document.getElementById("lista-carrinho");
+        lista.innerHTML="";
+        let total=0,q=0;
 
-function abrirModalCarrinho(id, nome, imagem, categoria, descricao) {
-    produtoAtual = { id, nome };
-    document.getElementById("nome-produto").innerText = nome;
-    document.getElementById("descricao-produto").innerText = descricao;
-    document.getElementById("imagem-produto").src =
-        "{{ url_for('static', filename='') }}" + categoria + "/" + imagem;
-    abrirModal("modal-carrinho");
-}
+        c.forEach(i=>{
+            q+=i.quantidade;
+            const div=document.createElement("div");
+            div.className="carrinho-item";
+            div.innerHTML=`${i.nome} x${i.quantidade}
+            <button onclick="remover(${i.id})">❌</button>`;
+            lista.appendChild(div);
+        });
 
-function adicionarCarrinho() {
-    fetch("/add_carrinho", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            id: produtoAtual.id,
-            nome: produtoAtual.nome,
-            quantidade: document.getElementById("qtd").value,
-            observacoes: document.getElementById("obs").value
-        })
-    }).then(() => {
-        atualizarQtdCarrinho();
-        fecharModal("modal-carrinho");
+        document.getElementById("qtd").innerText=q;
+        fetch("/total").then(r=>r.json()).then(d=>{
+            document.getElementById("total").innerText=d.total.toFixed(2);
+        });
     });
 }
 
-function atualizarQtdCarrinho() {
-    fetch("/get_carrinho")
-        .then(res => res.json())
-        .then(carrinho => {
-            const total = carrinho.reduce((s, i) => s + i.quantidade, 0);
-            document.getElementById("qtd-carrinho").innerText = total;
-        });
+function remover(id){
+    fetch("/remover_carrinho",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({id})
+    }).then(atualizarCarrinho);
 }
 
-window.onload = atualizarQtdCarrinho;
+window.onload=atualizarCarrinho;
 </script>
 
 </body>
