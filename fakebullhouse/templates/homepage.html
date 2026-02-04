@@ -2,71 +2,42 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Cardápio Bull</title>
+<title>CARDÁPIO BULL</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-/* ===== RESET ===== */
-* {
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-}
-
-/* ===== FUNDO ===== */
 body {
-    margin: 0;
-    background: black;
-    color: white;
+    background-image: url("{{ url_for('static', filename='fundo/fundo.png') }}");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     min-height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: white;
 }
 
-/* ===== TOURO DE FUNDO ===== */
-.touro {
-    position: fixed;
-    inset: 0;
-    background: url("{{ url_for('static', filename='logo/logo.png') }}") no-repeat center;
-    background-size: 65%;
-    opacity: 0.65;
-    z-index: -2;
-    filter: drop-shadow(0 0 60px rgba(225,0,0,0.5));
-}
-
-/* ===== CONTAINER CENTRAL ===== */
+/* ===== CENTRAL ===== */
 .central {
     text-align: center;
-    background: rgba(0,0,0,0.45);
-    backdrop-filter: blur(5px);
+    background: rgba(0,0,0,0.65);
     padding: 30px;
     border-radius: 20px;
-    max-width: 420px;
+    max-width: 90%;
     margin: 40px auto;
 }
 
 h1 {
-    font-size: 48px;
+    font-size: clamp(40px, 8vw, 100px);
     margin-bottom: 10px;
-    color: #ff0000;
-}
-
-.central img {
-    width: 160px;
-    margin-bottom: 20px;
 }
 
 button {
-    padding: 14px;
-    width: 100%;
-    margin-top: 10px;
-    border: none;
+    padding: 12px 20px;
     border-radius: 10px;
-    background: #e10600;
-    color: white;
-    font-size: 18px;
+    border: none;
+    font-size: 16px;
     cursor: pointer;
-}
-
-button:hover {
-    opacity: 0.9;
 }
 
 /* ===== MODAIS ===== */
@@ -74,26 +45,27 @@ button:hover {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.95);
-    z-index: 10;
+    background: rgba(0,0,0,0.9);
+    z-index: 100;
     overflow-y: auto;
 }
 
 .modal-content {
     background: #111;
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 40px auto;
     padding: 20px;
     border-radius: 15px;
+    text-align: center;
 }
 
 .close {
-    font-size: 28px;
+    font-size: 30px;
     float: right;
     cursor: pointer;
 }
 
-/* ===== CARDS ===== */
+/* ===== GRID ===== */
 .grid {
     display: flex;
     flex-wrap: wrap;
@@ -101,17 +73,13 @@ button:hover {
     justify-content: center;
 }
 
+/* ===== CARD ===== */
 .card {
-    background: #1a1a1a;
-    border-radius: 15px;
+    background: #222;
     padding: 15px;
+    border-radius: 15px;
     width: 280px;
     cursor: pointer;
-    transition: transform 0.2s;
-}
-
-.card:hover {
-    transform: scale(1.03);
 }
 
 .card img {
@@ -119,108 +87,68 @@ button:hover {
     border-radius: 10px;
 }
 
-.card h3 {
-    margin: 10px 0 5px;
-    color: #ff0000;
-}
-
-/* ===== MODAL PRODUTO ===== */
-#modal-carrinho img {
-    width: 150px;
-    margin-bottom: 10px;
-}
-
-/* ===== CARRINHO FLUTUANTE ===== */
+/* ===== CARRINHO FIXO ===== */
 .carrinho-btn {
     position: fixed;
-    right: 20px;
     bottom: 20px;
-    background: #e10600;
+    right: 20px;
+    background: red;
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     font-size: 26px;
-    cursor: pointer;
-    z-index: 20;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.carrinho-contador {
+.badge {
     position: absolute;
     top: -5px;
     right: -5px;
-    background: white;
-    color: black;
+    background: black;
+    color: white;
     font-size: 14px;
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
 }
 
-/* ===== CARRINHO MODAL ===== */
-.carrinho-modal {
-    display: none;
-    position: fixed;
-    right: 20px;
-    bottom: 90px;
-    background: #111;
-    width: 300px;
-    padding: 15px;
+/* ===== MODAL ADD ===== */
+#img-produto {
+    width: 200px;
     border-radius: 15px;
-    z-index: 30;
 }
 
-.item-carrinho {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 5px;
-}
-
-.item-carrinho button {
-    background: transparent;
-    color: red;
-    font-size: 16px;
-    width: auto;
-}
-
-/* ===== RESPONSIVO ===== */
-@media (max-width: 768px) {
-    .touro {
-        background-size: 90%;
-    }
-
-    h1 {
-        font-size: 36px;
-    }
+input, textarea {
+    width: 90%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
 }
 </style>
 </head>
 
 <body>
 
-<div class="touro"></div>
-
 <div class="central">
-    <h1>BULL HOUSE</h1>
-    <img src="{{ url_for('static', filename='logo/logo.png') }}">
+    <h1>CARDÁPIO BULL</h1>
+    <img src="{{ url_for('static', filename='logo/logo.png') }}" width="180"><br><br>
+
     <button onclick="abrirModal('hamburgueres')">🍔 Hambúrgueres</button>
     <button onclick="abrirModal('porcoes')">🍟 Porções</button>
 </div>
 
-<!-- ===== MODAL HAMBURGUERES ===== -->
+<!-- ===== MODAL HAMBURGUER ===== -->
 <div id="hamburgueres" class="modal">
 <div class="modal-content">
 <span class="close" onclick="fecharModal('hamburgueres')">×</span>
-<h2>Hambúrgueres</h2>
+<h2>🍔 Hambúrgueres</h2>
+
 <div class="grid">
 {% for p in produtos_hamburguer %}
-<div class="card" onclick="abrirProduto({{ p.id }}, '{{ p.nome }}', '{{ p.imagem }}', '{{ p.descricao }}')">
+<div class="card" onclick="abrirProduto({{ p.id }}, '{{ p.nome }}', '{{ p.imagem }}', '{{ p.descricao }}', 'hamburgueres')">
 <img src="{{ url_for('static', filename='hamburgueres/' + p.imagem) }}">
 <h3>{{ p.nome }}</h3>
 <p>{{ p.descricao }}</p>
@@ -228,89 +156,96 @@ button:hover {
 </div>
 {% endfor %}
 </div>
+
 </div>
 </div>
 
-<!-- ===== MODAL PRODUTO ===== -->
+<!-- ===== MODAL PORÇÕES (BUG CORRIGIDO AQUI) ===== -->
+<div id="porcoes" class="modal">
+<div class="modal-content">
+<span class="close" onclick="fecharModal('porcoes')">×</span>
+<h2>🍟 Porções</h2>
+
+<div class="grid">
+{% for p in produtos_porcoes %}
+<div class="card" onclick="abrirProduto({{ p.id }}, '{{ p.nome }}', '{{ p.imagem }}', '{{ p.descricao }}', 'porcoes')">
+<img src="{{ url_for('static', filename='porcoes/' + p.imagem) }}">
+<h3>{{ p.nome }}</h3>
+<p>{{ p.descricao }}</p>
+<strong>R$ {{ p.preco }}</strong>
+</div>
+{% endfor %}
+</div>
+
+</div>
+</div>
+
+<!-- ===== MODAL ADD CARRINHO ===== -->
 <div id="modal-carrinho" class="modal">
 <div class="modal-content">
 <span class="close" onclick="fecharModal('modal-carrinho')">×</span>
+
 <img id="img-produto">
 <h2 id="nome-produto"></h2>
 <p id="desc-produto"></p>
-<input type="number" id="qtd" value="1" min="1">
-<textarea id="obs" placeholder="Observações"></textarea>
-<button onclick="adicionar()">Adicionar</button>
+
+<label>Quantidade</label><br>
+<input type="number" id="qtd" value="1"><br><br>
+
+<label>Observações</label><br>
+<textarea id="obs"></textarea><br><br>
+
+<button onclick="adicionarCarrinho()">Adicionar ao carrinho</button>
 </div>
 </div>
 
-<!-- ===== CARRINHO ===== -->
-<div class="carrinho-btn" onclick="toggleCarrinho()">
+<!-- ===== BOTÃO CARRINHO ===== -->
+<div class="carrinho-btn" onclick="window.location='/checkout'">
 🛒
-<div class="carrinho-contador" id="contador">0</div>
-</div>
-
-<div class="carrinho-modal" id="carrinho-modal">
-<div id="lista"></div>
-<p><strong>Total: R$ <span id="total">0.00</span></strong></p>
-<a href="/checkout"><button>Finalizar</button></a>
+<span class="badge" id="qtd-carrinho">0</span>
 </div>
 
 <script>
 let produtoAtual = {};
 
-function abrirModal(id){ document.getElementById(id).style.display="block"; }
-function fecharModal(id){ document.getElementById(id).style.display="none"; }
+function abrirModal(id){ document.getElementById(id).style.display = "block"; }
+function fecharModal(id){ document.getElementById(id).style.display = "none"; }
 
-function abrirProduto(id,nome,img,desc){
-    produtoAtual={id,nome};
-    document.getElementById("nome-produto").innerText=nome;
-    document.getElementById("desc-produto").innerText=desc;
-    document.getElementById("img-produto").src="{{ url_for('static', filename='hamburgueres/') }}"+img;
+function abrirProduto(id, nome, img, desc, pasta){
+    produtoAtual = { id, nome };
+    document.getElementById("nome-produto").innerText = nome;
+    document.getElementById("desc-produto").innerText = desc;
+    document.getElementById("img-produto").src =
+        "{{ url_for('static', filename='') }}" + pasta + "/" + img;
     abrirModal("modal-carrinho");
 }
 
-function adicionar(){
-fetch("/add_carrinho",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-id:produtoAtual.id,
-nome:produtoAtual.nome,
-quantidade:document.getElementById("qtd").value,
-observacoes:document.getElementById("obs").value
-})
-}).then(()=>{fecharModal("modal-carrinho");carregar();});
+function adicionarCarrinho(){
+    fetch("/add_carrinho", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            id: produtoAtual.id,
+            nome: produtoAtual.nome,
+            quantidade: document.getElementById("qtd").value,
+            observacoes: document.getElementById("obs").value
+        })
+    }).then(()=>{
+        fecharModal("modal-carrinho");
+        atualizarCarrinho();
+    });
 }
 
-function toggleCarrinho(){
-const c=document.getElementById("carrinho-modal");
-c.style.display=c.style.display==="block"?"none":"block";
+function atualizarCarrinho(){
+    fetch("/get_carrinho")
+    .then(r=>r.json())
+    .then(c=>{
+        let total = c.reduce((s,i)=>s+i.quantidade,0);
+        document.getElementById("qtd-carrinho").innerText = total;
+    });
 }
 
-function carregar(){
-fetch("/get_carrinho").then(r=>r.json()).then(d=>{
-document.getElementById("lista").innerHTML="";
-document.getElementById("contador").innerText=d.length;
-d.forEach(i=>{
-document.getElementById("lista").innerHTML+=`
-<div class="item-carrinho">
-${i.nome} x${i.quantidade}
-<button onclick="remover(${i.id})">❌</button>
-</div>`;
-});
-});
-fetch("/total").then(r=>r.json()).then(d=>{
-document.getElementById("total").innerText=d.total.toFixed(2);
-});
-}
-
-function remover(id){
-fetch("/remover_carrinho",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})})
-.then(()=>carregar());
-}
-
-window.onload=carregar;
+window.onload = atualizarCarrinho;
 </script>
 
 </body>
