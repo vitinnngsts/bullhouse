@@ -83,35 +83,41 @@
 <body>
 
 <div class="container">
-    <h1>🧾 Finalizar Pedido</h1>
+  <h1>Pedido #{{ pedido.id }}</h1>
 
-    {% if carrinho|length == 0 %}
-        <p>Seu carrinho está vazio.</p>
-    {% else %}
+<p><strong>Total:</strong> R$ {{ pedido.total }}</p>
+<p><strong>Endereço:</strong> {{ pedido.endereco }}</p>
+<p><strong>Status:</strong>
+    <span id="status-pedido">{{ pedido.status }}</span>
+</p>
 
-        <ul>
-            {% for item in carrinho %}
-                <li>{{ item.nome }} × {{ item.quantidade }}</li>
-            {% endfor %}
-        </ul>
+<h3>Itens</h3>
+<ul>
+{% for item in pedido.itens %}
+    <li>{{ item.nome }} x{{ item.quantidade }}</li>
+{% endfor %}
+</ul>
 
-        <div class="total">
-            Total: R$ {{ total }}
-        </div>
+{% if pedido.status == "Aguardando pagamento" %}
+    <a href="/pagar/{{ pedido.id }}">
+        <button style="padding:12px 20px;font-size:18px;">
+            💳 Pagar agora
+        </button>
+    </a>
+{% endif %}
 
-        <form action="/finalizar_pedido" method="post">
-            <label>Nome</label>
-            <input type="text" name="nome" required>
+<script>
+const pedidoId = "{{ pedido.id }}";
 
-            <label>Endereço</label>
-            <textarea name="endereco" rows="3" required></textarea>
+setInterval(() => {
+    fetch(`/api/status/${pedidoId}`)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("status-pedido").innerText = data.status;
+        });
+}, 3000);
+</script>
 
-            <button type="submit">Confirmar Pedido</button>
-        </form>
-
-    {% endif %}
-
-    <a href="/" class="voltar">⬅ Voltar ao cardápio</a>
 </div>
 
 </body>

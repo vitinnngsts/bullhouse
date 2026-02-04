@@ -348,41 +348,46 @@ def pagar(pedido_id):
     conn = conectar()
     cursor = conn.cursor()
 
-    # pega total do pedido
     cursor.execute(
         "SELECT total FROM pedidos WHERE id = ?",
         (pedido_id,)
     )
-    total = cursor.fetchone()[0]
+    pedido = cursor.fetchone()
+
+    if not pedido:
+        conn.close()
+        return redirect("/")
+
+    total = float(pedido[0])
+
+    cursor.execute(
+        "SELECT nome, quantidade FROM itens WHERE pedido_id = ?",
+        (pedido_id,)
+    )
+    itens_db = cursor.fetchall()
 
     conn.close()
 
+    itens = []
+    for nome, quantidade in itens_db:
+        itens.append({
+            "title": nome,
+            "quantity": quantidade,
+            "currency_id": "BRL",
+            "unit_price": total / len(itens_db)  # divide certinho
+        })
+
     preference_data = {
-        "items": [
-            {
-                "title": f"Pedido #{pedido_id} - BullHouse",
-                "quantity": 1,
-                "currency_id": "BRL",
-                "unit_price": float(total)
-            }
-        ],
+        "items": itens,
         "external_reference": str(pedido_id),
-        "payment_methods": {
-            "excluded_payment_methods": [],
-            "excluded_payment_types": [],
-            "installments": 1
-        },
         "notification_url": "https://SEU-SITE.onrender.com/webhook",
-        "auto_return": "approved",
-        "back_urls": {
-            "success": f"https://SEU-SITE.onrender.com/pedido/{pedido_id}",
-            "failure": f"https://SEU-SITE.onrender.com/pedido/{pedido_id}",
-            "pending": f"https://SEU-SITE.onrender.com/pedido/{pedido_id}"
-        }
+        "auto_return": "approved"
     }
 
     preference = sdk.preference().create(preference_data)
+
     return redirect(preference["response"]["init_point"])
+
 
 
 
